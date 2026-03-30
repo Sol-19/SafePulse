@@ -23,7 +23,7 @@ export default function TabLayout() {
 
       }}>
       <Tabs.Screen
-        name="Home"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <House size={24}  color={color} />,
@@ -31,7 +31,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-       name = "AddContacts"
+       name = "add-contact"
        options={{
         title: 'Add Contact',
         tabBarIcon: ({ color }) => <UserPlus color={color} size={24} />,
@@ -39,7 +39,7 @@ export default function TabLayout() {
        />
 
       <Tabs.Screen
-        name="ManageContacts"
+        name="manage-contact"
         options={{
           title: 'Manage Contact',
           tabBarIcon: ({ color }) => <Users size={24} color={color} />,
@@ -47,7 +47,7 @@ export default function TabLayout() {
       />
     
       <Tabs.Screen
-       name = "Menu"
+       name = "menu"
        options={{
         title: 'Menu',
         tabBarIcon: ({ color }) => <Menu color={color} size={24} />,
