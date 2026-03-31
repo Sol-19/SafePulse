@@ -3,6 +3,9 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import "../global.css";
+import * as SystemUI from 'expo-system-ui';
+
+SystemUI.setBackgroundColorAsync('#3723A9');
 
 
 
@@ -13,7 +16,7 @@ export default function RootLayout() {
     <ThemeProvider value={DefaultTheme}>
       <Stack initialRouteName='signup'
              screenOptions={{
-              animation: 'fade',
+              animation: 'slide_from_bottom',
             }}
              >
 
