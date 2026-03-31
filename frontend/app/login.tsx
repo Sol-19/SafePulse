@@ -82,7 +82,7 @@ const handleAuthOTP = async () => {
 
              <TouchableOpacity onPress={()=> router.replace('/signup')}
             className="bg-[#FFFFF] p-5 rounded-[25px] border border-[#737373]">
-                <Text className="text-center">Log in</Text>
+                <Text className="text-center">Create Account</Text>
             </TouchableOpacity>
 
 
