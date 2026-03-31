@@ -14,7 +14,6 @@ export default function RootLayout() {
       <Stack initialRouteName='signup'
              screenOptions={{
               animation: 'fade',
-              contentStyle: { backgroundColor: '#3723A9'}
             }}
              >
 
