@@ -13,7 +13,7 @@ export default function RootLayout() {
     <ThemeProvider value={DefaultTheme}>
       <Stack initialRouteName='signup'
              screenOptions={{animation: 'fade'}}>
-              
+
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{headerShown: false}}/>
         <Stack.Screen name="login" options={{headerShown: false}}/>
