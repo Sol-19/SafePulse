@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, Request, HTTPException, Header, Depends
+from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from supabase import acreate_client, AsyncClient
@@ -63,13 +64,9 @@ async def get_db_client(request: Request):
     return request.app.state.db_client
 async def get_auth_client(request: Request):
     return request.app.state.auth_client
-async def get_current_usersession(authorization: str = Header(default=None), db_client = Depends(get_db_client)):
+async def get_current_usersession(authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer()), db_client = Depends(get_db_client)):
     try:
-        print(repr(authorization))
-        if not authorization or not authorization.startswith("Bearer "):
-            print("hello")
-            raise HTTPException(status_code=401, detail="Invalid or missing Authorization header")
-        session_id = authorization.split(" ")[1]
+        session_id = authorization.credentials
         current_user = await get_session(session_id, db_client)
     except SessionNotFoundError as e: 
         raise HTTPException(status_code = 401, detail=str(e))
