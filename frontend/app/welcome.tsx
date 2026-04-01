@@ -21,7 +21,7 @@ export default function IntroScreen()
 
         <Text className="text-white">
               <Text style={{textDecorationLine: 'underline'}} 
-              onPress={() => router.push('/signup')}>Already have an account?</Text>
+              onPress={() => router.push('/login')}>Already have an account?</Text>
         </Text>
 
       </View>
