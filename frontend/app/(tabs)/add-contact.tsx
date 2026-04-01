@@ -18,22 +18,26 @@ export default function AddContacts ()
          <View className="flex-1 ">
 
          <View className="rounded-[26px] flex-[4] bg-white pt-10 -mt-justify-center px-10">
+     
+          <Text className="mb-3 font-semibold">First Name</Text>
 
-           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
+           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-6">
            <TextInput
-           placeholder="Enter First Name"
+           placeholder="Juan"
            className="flex-1 p-4"
            />
             </View>
 
-           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
+          <Text className="mb-3 font-semibold">Last Name</Text>
+
+           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-6">
            <TextInput
-           placeholder="Enter Last Name"
+           placeholder="Santos"
            className="flex-1 p-4"
            />
             </View>
 
-           <Text className="mb-3">Phone Number</Text>
+           <Text className="mb-3 font-semibold">Phone Number</Text>
 
            <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
            <Text className="p-2 text-black border-r border-[#737373]">+639</Text>

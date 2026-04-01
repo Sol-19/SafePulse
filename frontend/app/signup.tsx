@@ -64,7 +64,7 @@ const handleAuthOTP = async () => {
 
          <View className="rounded-[28px] flex-[4] bg-[#F5F5F5] p-10 -mt-16">
             <Text className="text-2xl font-bold mb-6 ">Sign up</Text>
-            <Text className="mb-3">Phone Number</Text>
+            <Text className="mb-3 font-semibold">Phone Number</Text>
             
 
           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
@@ -86,7 +86,7 @@ const handleAuthOTP = async () => {
          
 
     
-            <TouchableOpacity onPress={()=> router.replace('/Home')}
+            <TouchableOpacity onPress={()=> router.replace('/(tabs)/home')}
             className="bg-[#FF6B2C] p-5 rounded-[25px] mb-4">
                 <Text className="text-center text-white">Send OTP</Text>
             </TouchableOpacity>
