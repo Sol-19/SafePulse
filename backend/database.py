@@ -32,6 +32,11 @@ async def insert_session(user_id:str, token:str, db_client):
     }
     await db_client.table("sessions").insert(db_payload).execute()
  
+async def add_relative(user_id: str, relative_name:str, mobile_number: str,db_client):
+    db_payload = {"user_id":user_id,
+                  "relative_name": relative_name, 
+                  "mobile_number": mobile_number}     
+    await db_client.table("relatives").insert(db_payload).execute()
 #READ ==================================================================================
 async def get_session(session_id: str, db_client):
     res = await db_client.table("sessions").select().eq("session_id", session_id).execute()
@@ -44,7 +49,7 @@ async def get_user(mobile_number: str, db_client):
     return res.data[0]["user_id"]
  
 #UPDATE ============================================================================  
-async def add_location(latitude: float, longitude: float, user_id: str, db_client):
+async def update_coordinates(latitude: float, longitude: float, user_id: str, db_client):
     db_payload = {"latitude": latitude, "longitude": longitude}
     await db_client.table("users").update(db_payload).eq("user_id", user_id).execute()
 
