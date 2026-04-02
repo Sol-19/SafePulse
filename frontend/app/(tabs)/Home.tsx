@@ -3,6 +3,7 @@ import {View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Scrol
 import { User, Bell } from 'lucide-react-native';
 import EarthquakeCard from "@/components/earthquake-card";
 import ContactAvatar from "@/components/contact-avatar";
+import LogsList from "@/components/log-item";
 
 
 
@@ -33,7 +34,7 @@ export default function Home ()
                   </View>
 
                   <ContactAvatar/>
-                  
+
                 </View>
 
 
@@ -42,7 +43,11 @@ export default function Home ()
                     <Bell size={30}/>
                     <Text className="text-2xl font-bold p-2">Logs</Text>
                   </View>
+
+                  <LogsList/> 
                 </View>
+
+               
 
             </View>
 
