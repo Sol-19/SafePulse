@@ -24,22 +24,26 @@ scheduler = AsyncIOScheduler()
 load_dotenv()
 last_poll_time = None
 
+
+# adds a new user after sign up
 async def handle_registration(payload, db_client):
     await add_user_to_database(payload.mobile_number,payload.first_name,payload.last_name, db_client)
     return JSONResponse(status_code = 201, content = {"detail": "User is registered"})
 
+# logs out the old session and starts a new one for this user
 async def handle_login(payload, db_client):
     current_user_id = await get_user(payload.mobile_number, db_client)
     await logout_user(current_user_id, db_client)
     session_id = await create_session(payload.mobile_number, db_client)
     return JSONResponse(status_code = 200,content = {"detail": "User is logged in", "session id": session_id})
 
+# picks what to do after the OTP check passes
 HANDLERS = {
     "registration": handle_registration,
     "login": handle_login
     }
 
-#startup logic
+# sets up the shared clients when the app starts and cleans old OTPs
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.auth_client = await acreate_client(
@@ -65,10 +69,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 #dependencies
+
+# gives route handlers access to the database client
 async def get_db_client(request: Request):
     return request.app.state.db_client
+# gives route handlers access to the auth client
 async def get_auth_client(request: Request):
     return request.app.state.auth_client
+
+# gets the user linked to the session in the request
+# this keeps each user tied to their own data
 async def get_current_usersession(authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)), db_client = Depends(get_db_client)):
     try:
         session_id = authorization.credentials
@@ -85,7 +95,7 @@ async def get_current_usersession(authorization: HTTPAuthorizationCredentials = 
 def root():
     return {"message": "this is the main"}
 
-#REMOVE ON DEPLOYEMENT
+# temporary debug route, remove before deployment
 @app.get("/coords")
 async def coords(db_client = Depends(get_db_client)):
     res = await get_user_coordinates(db_client)
@@ -99,7 +109,7 @@ async def request_OTP(payload: RequestOTPPayload, db_client = Depends(get_db_cli
             await get_user(payload.mobile_number, db_client)
         if payload.purpose == "registration" and await number_in_db(payload.mobile_number, db_client):
             raise HTTPException(status_code= 409, detail="You cannot register as the number has been registered")
-        otp = generate_otp() #generate a string OTP
+        otp = generate_otp() # make a fresh OTP for this request
         #await send_otp_sms(payload.mobile_number, otp)
         await delete_existing_otp(payload.mobile_number, db_client)
         otp_code = await insert_otp_entry(payload.mobile_number, otp, payload.purpose, db_client)
@@ -116,6 +126,7 @@ async def auth_otp(payload:AuthOTPPayload, db_client: AsyncClient = Depends(get_
     try:
         isvalid = await checkOTP(payload.mobile_number, payload.purpose,payload.otp,db_client)
         if isvalid:
+            # once the OTP is correct, send the user through the right flow
             await delete_existing_otp(payload.mobile_number, db_client)
             handler = HANDLERS.get(payload.purpose)
             return await handler(payload, db_client)
@@ -129,8 +140,8 @@ async def auth_otp(payload:AuthOTPPayload, db_client: AsyncClient = Depends(get_
         raise 
     except DuplicateMobileError as e:
         raise HTTPException(status_code=409, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+    except Exception:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error")
     
 @app.post("/api/v1/relatives")
 async def add_relatives(payload: RelativesPayload, db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
@@ -139,7 +150,7 @@ async def add_relatives(payload: RelativesPayload, db_client = Depends(get_db_cl
         return res
     except RelativeAlreadyAdded as e:
         raise HTTPException(409, detail = str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(500, detail = "Internal Server Error")
     
 #UPDATE============================================================================
@@ -160,8 +171,15 @@ async def update_location(payload: LocationPayload, db_client = Depends(get_db_c
 
 @app.put("/api/v1/users")
 async def update_user_name(payload:UpdateNamePayload, db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
-    await update_name(user_id, payload.first_name, payload.last_name, db_client)
-    return {"message":f"User name has been updated"}
+    try:
+        await update_name(user_id, payload.first_name, payload.last_name, db_client)
+        return {"message": f"User name has been updated"}
+    except DatabaseError:
+        # Avoid leaking internal database error details
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception:
+        # Catch-all for any unexpected exceptions
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 #DELETE==============================================================================
 @app.delete("/api/v1/relatives/{relative_id}")
@@ -171,8 +189,8 @@ async def delete_relative(relative_id:UUID, db_client = Depends(get_db_client), 
         return Response(status_code=204)
     except RelativeNotFoundError:
         raise HTTPException(404, detail="Relative not found")
-    except DatabaseError as e:
-        raise HTTPException(500, detail=f"Internal Server Error: {e}")
+    except DatabaseError:
+        raise HTTPException(500, detail=f"Internal Server Error")
     
 @app.post("/api/v1/logout")
 async def logout(current_user = Depends(get_current_usersession), db_client = Depends(get_db_client)):

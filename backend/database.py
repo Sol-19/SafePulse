@@ -3,6 +3,7 @@ from uuid import UUID
 
 class DatabaseError(Exception):
     pass
+
 class DuplicateMobileError(DatabaseError):
     pass
 
@@ -19,6 +20,7 @@ class NumberNotInDatabase(DatabaseError):
     pass
 
 def catch_database_error(func):
+    # turns unexpected database errors into one consistent error type
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
@@ -77,10 +79,14 @@ async def add_relative(user_id: str, relative_name:str, mobile_number: str,db_cl
     
 #READ ==================================================================================
 @catch_database_error
+#checks if the number is in the database, returns True(the data if exists)
+#returns False(if data does not exist)
 async def number_in_db(mobile_number: str, db_client):
     res = await db_client.table("users").select().eq("mobile_number", mobile_number).execute()
     return res.data
 
+#gets the session and returns the user_id of the session
+#raises a sessionnotfound error if no session is found
 @catch_database_error
 async def get_session(session_id: str, db_client):
     res = await db_client.table("sessions").select().eq("session_id", session_id).execute()
@@ -88,6 +94,8 @@ async def get_session(session_id: str, db_client):
         raise SessionNotFoundError("Session Not found")
     return res.data[0]["user_id"]
 
+#gets the user from the database
+#raises an error if not found
 @catch_database_error
 async def get_user(mobile_number: str, db_client):
     res = await db_client.table("users").select().eq("mobile_number", mobile_number).execute()
@@ -95,15 +103,17 @@ async def get_user(mobile_number: str, db_client):
         raise NumberNotInDatabase("Number not registered")
     return res.data[0]["user_id"]
  
+#gets the list of relatives of the user 
 @catch_database_error
 async def get_relatives(user_id: str, db_client):
     res = await db_client.table("relatives").select().eq("user_id", user_id).execute()
     return res.data
 
+#returns a list of users with non-null coordinates
 @catch_database_error
 async def get_user_coordinates(db_client):
     res = await db_client.table("users").select("*").not_.is_("latitude", "null").not_.is_("longitude", "null").execute()
-    return res.data[0]
+    return res.data
 
 #UPDATE ============================================================================  
 @catch_database_error
@@ -142,7 +152,7 @@ async def delete_relatives(user_id: str, relative_id:UUID, db_client):
         raise RelativeNotFoundError("Relative not found")
     res = await db_client.table("relatives").delete().eq("user_id", user_id).eq("relative_id", relative_id).execute()
       
-#scheduler to cleanup expired otp
+# removes old OTP codes that are no longer valid
 async def clean_up_expired_otp(db_client):
     try:
         await db_client.table("otp_verifications").delete().lt("expires_at", datetime.now(timezone.utc).isoformat()).execute()
