@@ -102,6 +102,10 @@ async def coords(db_client = Depends(get_db_client)):
     relatives = await get_relatives(res["user_id"], db_client)
     return [res, relatives]
 
+@app.get("/api/v1/logs")
+async def get_logs(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
+    pass
+
 @app.post("/api/v1/otp/requests")
 async def request_OTP(payload: RequestOTPPayload, db_client = Depends(get_db_client)):
     try:
