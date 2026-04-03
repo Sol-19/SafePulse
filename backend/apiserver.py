@@ -10,7 +10,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from uuid import UUID
 
 #other file imports for separation of concerns
-from utils import send_otp_sms, generate_otp, create_session
+from utils import send_otp_sms, generate_otp, create_session, check_earthquakes
 from database import DuplicateMobileError, SessionNotFoundError, DatabaseError,RelativeNotFoundError\
 ,RelativeAlreadyAdded,NumberNotInDatabase,clean_up_expired_otp, delete_existing_otp\
 ,add_user_to_database,insert_otp_entry,get_session, logout_user, get_user, update_coordinates\
@@ -58,6 +58,11 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(
         clean_up_expired_otp,
         trigger=IntervalTrigger(minutes=5),
+        args=[app.state.db_client]
+    )
+    scheduler.add_job(
+        check_earthquakes,
+        trigger=IntervalTrigger(minutes=2),
         args=[app.state.db_client]
     )
     scheduler.start()
