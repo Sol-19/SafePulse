@@ -15,7 +15,7 @@ from database import DuplicateMobileError, SessionNotFoundError, DatabaseError,R
 ,RelativeAlreadyAdded,NumberNotInDatabase,  LogNotFoundError,clean_up_expired_otp, delete_existing_otp\
 ,add_user_to_database,insert_otp_entry,get_session, logout_user, get_user, update_coordinates\
 ,add_relative, update_relatives, delete_relatives, number_in_db\
-,update_name, get_logs, delete_logs, get_user_relative, get_user_with_session
+,update_name, get_logs, delete_logs, get_user_relatives, get_user_with_session
 from auth import checkOTP, OTPNotFoundError, ExpiredOTPError
 from payloadmodels import AuthOTPPayload, RequestOTPPayload, LocationPayload, RelativesPayload\
 ,UpdateNamePayload, EarthquakePayload
@@ -102,17 +102,32 @@ def root():
 
 @app.get("/api/v1/logs")
 async def get_user_logs(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
-    res = await get_logs(user_id, db_client)
+    try:
+        res = await get_logs(user_id, db_client)
+    except HTTPException:
+        raise
+    except DatabaseError:
+        raise HTTPException(status_code=500, detail="Database operation failed")
     return res
 
 @app.get("/api/v1/relatives")
-async def get_user_relatives(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
-    res = await get_user_relative(user_id, db_client)
+async def get_relatives_of_user(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
+    try:
+        res = await get_user_relatives(user_id, db_client)
+    except HTTPException:
+        raise
+    except DatabaseError:
+        raise HTTPException(status_code=500, detail="Database operation failed")
     return res
 
 @app.get("/api/v1/users")
 async def get_user(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
-    res = await get_user_with_session(db_client, user_id)
+    try:
+        res = await get_user_with_session(db_client, user_id)
+    except HTTPException:
+        raise
+    except DatabaseError:
+        raise HTTPException(status_code=500, detail="Database operation failed")
     return res
 
 #POST================================================================================================================
