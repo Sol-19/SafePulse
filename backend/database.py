@@ -176,7 +176,7 @@ async def delete_logs(user_id: str, log_id:str, db_client):
     res = await db_client.table("alert_logs").select().eq("user_id", user_id).eq("log_id", log_id).execute()
     if not res.data:
         raise LogNotFoundError("Log not found")
-    res = await db_client.table("relatives").delete().eq("user_id", user_id).eq("relative_id", relative_id).execute()
+    res = await db_client.table("alert_logs").delete().eq("user_id", user_id).eq("log_id", log_id).execute()
 
       
 # removes old OTP codes that are no longer valid
