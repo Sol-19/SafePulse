@@ -84,7 +84,7 @@ async def fetch_earthquakes(starttime:datetime):
     return res.json().get("features", [])
 
 async def check_earthquakes(db_client):
-    global current_time
+    global current_time, last_poll_time
     start_time = current_time - timedelta(minutes=2)
     raw_earthquakes = await fetch_earthquakes(start_time)
     earthquakes = []
@@ -97,10 +97,11 @@ async def check_earthquakes(db_client):
             "place": earthquake["properties"]["place"]
         })
     await process_earthquakes(earthquakes, db_client)
+    last_poll_time = current_time
 
 async def process_earthquakes(earthquakes, db_client):
     try:
-        global alerted_ids, last_poll_time, current_time
+        global alerted_ids
         users = await get_users_with_coordinates(db_client)
         for earthquake in earthquakes:
             earthquake_id = earthquake["earthquake_id"]
@@ -129,7 +130,6 @@ async def process_earthquakes(earthquakes, db_client):
                             magnitude earthquake in {place}"
                         await send_alert_sms(relative_number, message)
                         await log_alert(user_id, earthquake_id, magnitude, place, relative_name, db_client)
-        last_poll_time = current_time
     except Exception as e:
         print(e)             
    
