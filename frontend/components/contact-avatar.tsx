@@ -1,7 +1,8 @@
 
 import {View,Text, ScrollView} from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 
 
 
@@ -22,9 +23,10 @@ export default function ContactAvatar ()
 {
     const [contacts, setContacts] = useState([]);
 
-    useEffect(() => {
+    useFocusEffect(
+      useCallback(() => {
     loadContacts();
-    }, []);
+    }, []));
 
     const loadContacts = async () => {
     const token = await AsyncStorage.getItem('token');

@@ -3,9 +3,9 @@ import { router } from "expo-router";
 import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
 import { Ionicons } from '@expo/vector-icons';
 import { Pencil, Trash2 } from 'lucide-react-native';
-import { useState } from 'react';
-import contact from '@/data/contacts.json';
+import { useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const colors = ['#3723A9', '#FF6B2C', '#E91E63', '#009688', '#FF5722', '#673AB7', '#2196F3', '#4CAF50'];
 
@@ -17,8 +17,27 @@ const getColor = (name: string) => {
 export default function IntroScreen() 
 {
 
-  const [contacts, setContacts] = useState(contact);
+  const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
+
+  useFocusEffect(
+      useCallback(() => {
+    loadContacts();
+    }, []));
+
+  const loadContacts = async () => {
+  const token = await AsyncStorage.getItem('token');
+  const response = await fetch('https://beakonek.onrender.com/api/v1/relatives', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await response.json();
+    console.log(data);
+    console.log(data);
+    console.log(data);
+    setContacts(data);
+    };
+
 
   const filtered = contacts.filter(contact =>
     contact.relative_name.toLowerCase().includes(search.toLowerCase())
@@ -33,9 +52,36 @@ export default function IntroScreen()
 
   const sortedKeys = Object.keys(grouped).sort();
 
-  const deleteContact = (relative_id: string) => {
-    setContacts(contacts.filter(c => c.relative_id !== relative_id));
-  };
+
+
+
+  const deleteContact =  async (relative_id: string) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      const response = await fetch(
+        `https://beakonek.onrender.com/api/v1/relatives/${relative_id}`, 
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+
+          },
+        });
+     const data = await response.json();
+     if (!response.ok) {
+      console.log('Delete failed:', data);
+      return;
+     }
+     //setContacts(prev => prev.filter(contact => contact.relative_id !== relative_id));
+     await loadContacts();
+     console.log('Delete succesfully', data);
+
+    } catch (error)
+    {
+      console.log(error);
+    }
+  }
 
   return (
      <View className="flex-[1] bg-[#3723A9]">
