@@ -28,7 +28,7 @@ const handleRequestOTP = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-      mobile_number: '639' + phoneNumber, 
+      mobile_number: '63' + phoneNumber, 
       purpose: 'registration'}),
     });
     const data = await response.json();
@@ -45,7 +45,7 @@ const handleAuthOTP = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-      mobile_number: '639' + phoneNumber,
+      mobile_number: '63' + phoneNumber,
       purpose: 'registration',
       otp: otp,
       first_name: firstName,
@@ -67,8 +67,13 @@ const inputverification = () => {
     setError2("Name must be at least 2 characters");
     return;
   }
-  if (phoneNumber.length !== 9) {
-    setError("Invalid phone number. Please enter a 9-digit number.");
+  if (phoneNumber.length !== 10) {
+    setError("Invalid phone number. Please enter a 10-digit number.");
+    return;
+  }
+
+  if (!phoneNumber.startsWith('9')) {
+    setError("Phone number must start with 9.");
     return;
   }
     setError2("");
@@ -154,12 +159,12 @@ const handleVerify = async () => {
             
 
           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
-           <Text className="p-4 text-black border-r border-[#737373]">+639</Text>
+           <Text className="p-4 text-black border-r border-[#737373]">+63</Text>
            <TextInput
            placeholder="XXXXXXXXX"
            className="flex-1 p-4"
            keyboardType="phone-pad"
-           maxLength={9}
+           maxLength={10}
            value={phoneNumber}
            onChangeText={(text) => {
             setPhoneNumber(text);

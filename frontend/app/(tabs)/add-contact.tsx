@@ -17,17 +17,20 @@ export default function AddContacts ()
 
     
     const phoneverification = () => {
-      if (phoneNumber.length !== 9) {
+      if (phoneNumber.length !== 10) {
         console.log(phoneNumber);
-        setError("Invalid phone number. Please enter a 9-digit number.");
+        setError("Invalid phone number. Please enter a 10-digit number.");
         return;
-      } else {
-          
-           setPhoneNumber('');
-           setName('');
-           setError('');
-           handleSave();
+      } 
+      if (!phoneNumber.startsWith('9')) {
+      setError("Phone number must start with 9.");
+      return;
       }
+      setPhoneNumber('');
+      setName('');
+      setError('');
+      handleSave();
+      
    
     }
 
@@ -45,7 +48,7 @@ export default function AddContacts ()
             },
             body: JSON.stringify({ 
               relative_name: name, 
-              relative_number: '639' + phoneNumber 
+              relative_number: '63' + phoneNumber 
             }),
           });
           const data = await response.json();
@@ -97,12 +100,12 @@ export default function AddContacts ()
            <Text className="mb-3 font-semibold">Phone Number</Text>
 
           <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
-           <Text className="p-2 text-black border-r border-[#737373]">+639</Text>
+           <Text className="p-2 text-black border-r border-[#737373]">+63</Text>
            <TextInput
            placeholder="XXXXXXXXX"
            className="flex-1 p-4"
            keyboardType="phone-pad"
-           maxLength={9}
+           maxLength={10}
            value={phoneNumber}
            onChangeText={setPhoneNumber}
       
