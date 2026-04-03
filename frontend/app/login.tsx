@@ -33,6 +33,7 @@ const handleRequestOTP = async () => {
     const data = await response.json();
     console.log(data);
     console.log('This is request');
+    return data;
   } catch (error) {
     console.log(error);
   }
@@ -56,21 +57,24 @@ const handleAuthOTP = async () => {
   }
 };
 
-const registeredNumbers = [
-  "912345678",
-  "987654321"
-];
 
-const phoneverification = () => {
-  if (!registeredNumbers.includes(phoneNumber)) {
-    setError("Phone number not registered. Please sign up first.");
-    return;
-  }
+
+const phoneverification = async () => {
+
+  console.log("pressed!");
+
   if (phoneNumber.length !== 9) {
     setError("Invalid phone number. Please enter a 9-digit number.");
     return;
   }
-    handleRequestOTP();
+  console.log('hallo');
+  const response = await handleRequestOTP();
+  console.log('ts will not run');
+ 
+  if (response.detail === "Number not registered") {
+  setError("Phone number not registered. Please sign up first.");
+  return;
+  }
     setError("");
     setShowOtp(true);
     setKeyboardEnabled(!keyboardEnabled);
