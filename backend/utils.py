@@ -5,8 +5,12 @@ from dotenv import load_dotenv
 from supabase import AsyncClient
 from database import insert_session, get_user
 from haversine import haversine, Unit
+from datetime import datetime, timezone, timedelta
+from database import get_users_with_coordinates, log_alert, get_all_relatives
 
-
+alerted_ids = set()
+last_poll_time = None
+current_time = datetime.now(timezone.utc) 
 load_dotenv()
 PHILSMS_API_TOKEN = os.getenv("PHIL_SMS_API")
 
@@ -36,7 +40,6 @@ async def send_otp_sms(mobile_number: str, otp: str):
     except Exception:
         raise
 
-#DOUBLE CHECK
 async def send_alert_sms(mobile_number: str, message: str):
     try:
         async with httpx.AsyncClient() as client:
@@ -52,8 +55,7 @@ async def send_alert_sms(mobile_number: str, message: str):
                     "sender_id":"PhilSMS",
                     "type":"plain",
                     "message":message,
-            }
-            )
+            })
         return response   
     except Exception:
         raise
@@ -64,7 +66,7 @@ async def create_session(mobile_number: str, db_client, length: int = 32):
     await insert_session(user_id, session_id, db_client)
     return session_id
  
-async def fetch_earthquakes(starttime):
+async def fetch_earthquakes(starttime:datetime):
     url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
     params = {
         "format": "geojson",
@@ -78,11 +80,65 @@ async def fetch_earthquakes(starttime):
             }
     async with httpx.AsyncClient() as client:
         res = await client.get(url,params=params)
-    response = res.json()["features"]
-    return response
+    res.raise_for_status()
+    return res.json().get("features", [])
 
 async def check_earthquakes(db_client):
-    pass
+    global current_time, last_poll_time
+    start_time = current_time - timedelta(minutes=2)
+    raw_earthquakes = await fetch_earthquakes(start_time)
+    earthquakes = []
+    for earthquake in raw_earthquakes:
+        earthquakes.append({
+            "earthquake_id": earthquake["id"],
+            "magnitude": earthquake["properties"]["mag"],
+            "latitude": earthquake["geometry"]["coordinates"][1],
+            "longitude": earthquake["geometry"]["coordinates"][0],
+            "place": earthquake["properties"]["place"]
+        })
+    await process_earthquakes(earthquakes, db_client)
+    last_poll_time = current_time
+
+async def process_earthquakes(earthquakes, db_client):
+    try:
+        global alerted_ids
+        users = await get_users_with_coordinates(db_client)
+        all_relatives = await get_all_relatives(db_client) #get all relatives
+        relatives_map = {} 
+        for relative in all_relatives: #map all relatives to each user_id
+            user_id = relative["user_id"]
+            relatives_map.setdefault(user_id, []).append(relative)
+            
+        for earthquake in earthquakes:
+            earthquake_id = earthquake["earthquake_id"]
+            if earthquake_id in alerted_ids:
+                continue
+            alerted_ids.add(earthquake_id)
+            
+            magnitude = earthquake["magnitude"]
+            earthquake_lat = earthquake["latitude"]
+            earthquake_long = earthquake["longitude"]
+            place = earthquake["place"]
+            alert_radius = get_alert_radius(magnitude)
+            
+            for user in users:
+                user_lat = user["latitude"]
+                user_long = user["longitude"]
+                earthquake_distance = get_distance_km(user_lat, user_long, earthquake_lat, earthquake_long)
+                
+                if earthquake_distance <= alert_radius:
+                    user_id = user["user_id"]
+                    user_fullname = user["first_name"] + user["last_name"]
+                    relatives = relatives_map.get(user_id, [])
+                    
+                    for relative in relatives:
+                        relative_number = relative["mobile_number"]
+                        relative_name = relative["relative_name"]
+                        message = f"Your relative {user_fullname} has been affected by a {magnitude} magnitude earthquake in {place}"
+                        await send_alert_sms(relative_number, message)
+                        await log_alert(user_id, earthquake_id, magnitude, place, relative_name, db_client)
+    except Exception as e:
+        print(e)             
    
 def get_alert_radius(magnitude: float) -> float:
     if magnitude >= 7.0:
@@ -101,6 +157,3 @@ def get_distance_km(user_lat, user_long, earthquake_center_lat, earthquake_cente
     distance_km = haversine(earthquake_center, user_location, unit=Unit.KILOMETERS)
     
     return distance_km
-
-
-

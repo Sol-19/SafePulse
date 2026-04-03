@@ -10,15 +10,15 @@ from apscheduler.triggers.interval import IntervalTrigger
 from uuid import UUID
 
 #other file imports for separation of concerns
-from utils import send_otp_sms, generate_otp, create_session
+from utils import send_otp_sms, generate_otp, create_session, check_earthquakes, process_earthquakes
 from database import DuplicateMobileError, SessionNotFoundError, DatabaseError,RelativeNotFoundError\
 ,RelativeAlreadyAdded,NumberNotInDatabase,clean_up_expired_otp, delete_existing_otp\
 ,add_user_to_database,insert_otp_entry,get_session, logout_user, get_user, update_coordinates\
-,add_relative, get_users_with_coordinates,get_relatives, update_relatives, delete_relatives, number_in_db\
-,update_name
+,add_relative, update_relatives, delete_relatives, number_in_db\
+,update_name, get_logs
 from auth import checkOTP, OTPNotFoundError, ExpiredOTPError
 from payloadmodels import AuthOTPPayload, RequestOTPPayload, LocationPayload, RelativesPayload\
-,UpdateNamePayload
+,UpdateNamePayload, EarthquakePayload
 
 scheduler = AsyncIOScheduler()
 load_dotenv()
@@ -60,6 +60,11 @@ async def lifespan(app: FastAPI):
         trigger=IntervalTrigger(minutes=5),
         args=[app.state.db_client]
     )
+    scheduler.add_job(
+        check_earthquakes,
+        trigger=IntervalTrigger(minutes=2),
+        args=[app.state.db_client]
+    )
     scheduler.start()
     yield
     scheduler.shutdown()
@@ -95,16 +100,10 @@ async def get_current_usersession(authorization: HTTPAuthorizationCredentials = 
 def root():
     return {"message": "this is the main"}
 
-# temporary debug route, remove before deployment
-@app.get("/coords")
-async def coords(db_client = Depends(get_db_client)):
-    res = await get_users_with_coordinates(db_client)
-    relatives = await get_relatives(res["user_id"], db_client)
-    return [res, relatives]
-
 @app.get("/api/v1/logs")
-async def get_logs(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
-    pass
+async def get_user_logs(db_client = Depends(get_db_client), user_id = Depends(get_current_usersession)):
+    res = await get_logs(user_id, db_client)
+    return res
 
 @app.post("/api/v1/otp/requests")
 async def request_OTP(payload: RequestOTPPayload, db_client = Depends(get_db_client)):
@@ -156,6 +155,17 @@ async def add_relatives(payload: RelativesPayload, db_client = Depends(get_db_cl
         raise HTTPException(409, detail = str(e))
     except Exception:
         raise HTTPException(500, detail = "Internal Server Error")
+    
+@app.post("/api/v1/simulate_earthquakes")
+async def simulate_earthquakes(payload: EarthquakePayload, db_client = Depends(get_db_client)):
+    earthquake = [{
+        "earthquake_id": payload.earthquake_id,
+        "magnitude": payload.magnitude,
+        "latitude": payload.latitude,
+        "longitude": payload.longitude,
+        "place": payload.place}]
+    await process_earthquakes(earthquake, db_client)
+    return {"message": "Earthquake simulation processed successfully"}
     
 #UPDATE============================================================================
 @app.put("/api/v1/relatives/{relative_id}")

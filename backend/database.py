@@ -89,6 +89,7 @@ async def log_alert(user_id: str, earthquake_id: str, magnitude: float, place: s
     return res.data[0]
     
 #READ ==================================================================================
+
 #checks if the number is in the database, returns True(the data if exists)
 #returns False(if data does not exist)
 @catch_database_error
@@ -113,17 +114,21 @@ async def get_user(mobile_number: str, db_client):
     if not res.data:
         raise NumberNotInDatabase("Number not registered")
     return res.data[0]["user_id"]
- 
-#gets the list of relatives of the user 
+
 @catch_database_error
-async def get_relatives(user_id: str, db_client):
-    res = await db_client.table("relatives").select().eq("user_id", user_id).execute()
+async def get_logs(user_id: str, db_client):
+    res = await db_client.table("alert_logs").select().eq("user_id", user_id).execute()
     return res.data
 
 #returns a list of users with non-null coordinates
 @catch_database_error
 async def get_users_with_coordinates(db_client):
     res = await db_client.table("users").select("*").not_.is_("latitude", "null").not_.is_("longitude", "null").execute()
+    return res.data
+
+@catch_database_error
+async def get_all_relatives(db_client):
+    res = await db_client.table("relatives").select().execute()
     return res.data
 
 #UPDATE ============================================================================  
