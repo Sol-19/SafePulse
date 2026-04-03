@@ -27,7 +27,7 @@ const handleRequestOTP = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-      mobile_number: '639' + phoneNumber,
+      mobile_number: '63' + phoneNumber,
       purpose: 'login'}),
     });
     const data = await response.json();
@@ -44,7 +44,7 @@ const handleAuthOTP = async () => {
     const response = await fetch('https://beakonek.onrender.com/api/v1/otp/authentications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mobile_number: '639'+ phoneNumber,
+      body: JSON.stringify({ mobile_number: '63'+ phoneNumber,
       purpose: 'login',
       otp: otp }),
     });
@@ -61,15 +61,20 @@ const handleAuthOTP = async () => {
 
 const phoneverification = async () => {
 
-  console.log("pressed!");
+  
 
-  if (phoneNumber.length !== 9) {
-    setError("Invalid phone number. Please enter a 9-digit number.");
+  if (phoneNumber.length !== 10) {
+    setError("Invalid phone number. Please enter a 10-digit number.");
     return;
   }
-  console.log('hallo');
+
+   if (!phoneNumber.startsWith('9')) {
+    setError("Phone number must start with 9.");
+    return;
+  }
+
   const response = await handleRequestOTP();
-  console.log('ts will not run');
+
  
   if (response.detail === "Number not registered") {
   setError("Phone number not registered. Please sign up first.");
@@ -126,12 +131,12 @@ const handleVerify = async () => {
                   <Text className="mb-3 font-semibold">Phone Number</Text>
 
                 <View className="flex-row items-center bg-[#D9D9D9] rounded-[8px] border border-[#737373] mb-3">
-                <Text className="p-4 text-black border-r border-[#737373]">+639</Text>
+                <Text className="p-4 text-black border-r border-[#737373]">+63</Text>
                 <TextInput
                 placeholder="XXXXXXXXX"
                 className="flex-1 p-4"
                 keyboardType="phone-pad"
-                maxLength={9}
+                maxLength={10}
                 value={phoneNumber}
                 onChangeText={(text) => {
                 setPhoneNumber(text);
