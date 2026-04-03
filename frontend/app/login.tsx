@@ -18,8 +18,6 @@ const [otp, setOtp] = useState(''); //idk san to ginamit gawa nalang ako ng akin
 const [showotp, setShowOtp] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
-const [result, setResult] = useState('');
-const [registered,setRegistered] = useState('');
 const [keyboardEnabled, setKeyboardEnabled] = useState(true);
 
 

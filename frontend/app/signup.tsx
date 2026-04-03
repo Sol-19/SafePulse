@@ -17,8 +17,6 @@ const [otp, setOtp] = useState('');
 const [showotp, setShowOtp] = useState(false);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
-const [result, setResult] = useState('');
-const [registered,setRegistered] = useState('');
 const [keyboardEnabled, setKeyboardEnabled] = useState(true);
 
 const handleRequestOTP = async () => {
