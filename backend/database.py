@@ -135,7 +135,7 @@ async def get_all_relatives(db_client):
     return res.data
 
 @catch_database_error
-async def get_user_relatives(db_client, user_id):
+async def get_user_relative(db_client, user_id):
     res = await db_client.table("relatives").select().eq("user_id", user_id).execute()
     return res.data
 
