@@ -1,14 +1,30 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useRouter} from 'expo-router';
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 import { House, UserPlus, Users, Menu, Check} from 'lucide-react-native';
+import { useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
 
 
 export default function TabLayout() {
+
+   const router = useRouter();
+    const [isConnected, setIsConnected] = useState(true);
   
+    useEffect(() => {
+      const unsubscribe = NetInfo.addEventListener(state => {
+        const connected = state.isConnected && state.isInternetReachable;
+        setIsConnected(connected);
+        if (!connected) {
+        router.replace("../offline");}
+        if (connected) {
+        router.replace("/Home");}
+      });
+      return () => unsubscribe();}, []);
+
   return (
     <Tabs
       screenOptions={{
