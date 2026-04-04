@@ -85,15 +85,7 @@ async def check_earthquakes(db_client):
     global current_time, last_poll_time
     start_time = current_time - timedelta(minutes=2)
     raw_earthquakes = await fetch_earthquakes(start_time)
-    earthquakes = []
-    for earthquake in raw_earthquakes:
-        earthquakes.append({
-            "earthquake_id": earthquake["id"],
-            "magnitude": earthquake["properties"]["mag"],
-            "latitude": earthquake["geometry"]["coordinates"][1],
-            "longitude": earthquake["geometry"]["coordinates"][0],
-            "place": earthquake["properties"]["place"]
-        })
+    earthquakes = flatten_earthquake_data(raw_earthquakes)
     await process_earthquakes(earthquakes, db_client)
     last_poll_time = current_time
 
@@ -156,3 +148,15 @@ def get_distance_km(user_lat, user_long, earthquake_center_lat, earthquake_cente
     distance_km = haversine(earthquake_center, user_location, unit=Unit.KILOMETERS)
     
     return distance_km
+
+def flatten_earthquake_data(raw_earthquakes):
+    earthquakes = []
+    for earthquake in raw_earthquakes:
+        earthquakes.append({
+            "earthquake_id": earthquake["id"],
+            "magnitude": earthquake["properties"]["mag"],
+            "latitude": earthquake["geometry"]["coordinates"][1],
+            "longitude": earthquake["geometry"]["coordinates"][0],
+            "place": earthquake["properties"]["place"]
+        })
+    return earthquakes
