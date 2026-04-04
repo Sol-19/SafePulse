@@ -26,7 +26,7 @@ export default function RootLayout() {
         imageStyle={{ opacity: 0.2}}
       >
 
-      <Stack initialRouteName='welcome'
+      <Stack initialRouteName='loading'
              screenOptions={{
               animation: 'slide_from_bottom',
               animationDuration: 500,
@@ -37,6 +37,7 @@ export default function RootLayout() {
         <Stack.Screen name="signup" options={{headerShown: false}}/>
         <Stack.Screen name="login" options={{headerShown: false}}/>
          <Stack.Screen name="welcome" options={{headerShown: false}}/>
+         <Stack.Screen name="loading" options={{headerShown: false}}/>
         
       
       </Stack>
