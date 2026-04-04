@@ -94,7 +94,6 @@ async def process_earthquakes(earthquakes, db_client):
         user_id = relative["user_id"]
         user_relatives.setdefault(user_id, []).append(relative)
         
-        
     for earthquake in earthquakes:
         try:
             current_time = datetime.now(timezone.utc)
