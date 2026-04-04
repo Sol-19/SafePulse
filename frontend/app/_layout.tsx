@@ -29,6 +29,7 @@ export default function RootLayout() {
       <Stack initialRouteName='loading'
              screenOptions={{
               animation: 'slide_from_bottom',
+              animationDuration: 500,
             }}
              >
 
