@@ -21,16 +21,27 @@ export default function RootLayout() {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      const connected = state.isConnected && state.isInternetReachable;
-      setIsConnected(connected);
-      if (!connected) {
-      router.replace("/offline");}
-      if (connected) {
-      router.replace("/loading");}
-    });
-    return () => unsubscribe();}, []);
+useEffect(() => {
+  let ready = false;
+
+  const unsubscribe = NetInfo.addEventListener(state => {
+    const connected = state.isConnected && state.isInternetReachable;
+    setIsConnected(connected);
+
+    if (!ready) {
+      ready = true;
+      return; // 👈 skip the first immediate fire
+    }
+
+    if (!connected) {
+      router.replace("/offline");
+    } else {
+      router.replace("/");
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
 
   return (
 
@@ -43,7 +54,7 @@ export default function RootLayout() {
         imageStyle={{ opacity: 0.2}}
       >
 
-      <Stack initialRouteName='loading'
+      <Stack initialRouteName='index'
              screenOptions={{
               animation: 'default',
               animationDuration: 500,
@@ -54,7 +65,7 @@ export default function RootLayout() {
         <Stack.Screen name="signup" options={{headerShown: false}}/>
         <Stack.Screen name="login" options={{headerShown: false}}/>
          <Stack.Screen name="welcome" options={{headerShown: false}}/>
-         <Stack.Screen name="loading" options={{headerShown: false}}/>
+         <Stack.Screen name="index" options={{headerShown: false}}/>
          <Stack.Screen name="offline" options={{headerShown: false}}/>
         
       

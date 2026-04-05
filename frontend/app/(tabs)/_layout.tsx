@@ -21,7 +21,7 @@ export default function TabLayout() {
         if (!connected) {
         router.replace("../offline");}
         if (connected) {
-        router.replace("/home");}
+        router.replace("/(tabs)/home");}
       });
       return () => unsubscribe();}, []);
 

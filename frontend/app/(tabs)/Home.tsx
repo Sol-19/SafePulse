@@ -16,7 +16,7 @@ export default function Home ()
     useEffect(() => {
     updateLocation();
     startBackgroundLocation();
-    const interval = setInterval(updateLocation, 10000);
+    const interval = setInterval(updateLocation, 600000);
     return () => clearInterval(interval);
   }, []);
 
