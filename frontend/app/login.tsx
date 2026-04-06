@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
 import Otp from "./otp";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logo from "@/assets/images/logo";
 
 
 
@@ -99,7 +100,7 @@ const handleVerify = async () => {
     setKeyboardEnabled(!keyboardEnabled);
     setShowOtp(false);
     setError("");
-    alert("✅ Login Succesful!");
+    alert("Login Succesful!");
     console.log(response);
     await AsyncStorage.setItem('token', response["session id"]);
 
@@ -122,10 +123,7 @@ const handleVerify = async () => {
                   source={require('../assets/images/background-image.jpg')}
                   className="absolute w-full h-full opacity-20"
                   />
-                  <Image 
-                  source={require('../assets/images/logo.png')}
-                  style={{width: 200, height: 200}}
-                  />
+                  <Logo/>
               </View>
 
 
@@ -179,7 +177,10 @@ const handleVerify = async () => {
                setOtp={setOtp}
                error={error}
                onVerify={handleVerify}
-               onResend={phoneverification}/>
+               onResend={()=> {
+                phoneverification();
+              
+               }}/>
 
              <TouchableOpacity onPress={()=> router.replace('/signup')}
             className="bg-[#FFFFF] p-5 rounded-[25px] border border-[#737373]">

@@ -8,12 +8,9 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#3723A9",
+        "backgroundColor": "#353839",
         "foregroundImage": "./assets/images/logo.png"
       },
       "edgeToEdgeEnabled": true,
@@ -40,6 +37,15 @@
           "dark": {
             "backgroundColor": "#3723A9"
           }
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "This app uses your location to show nearby beacons.",
+          "locationAlwaysAndWhenInUsePermission": "This app uses your location in the background to track beacons.",
+          "locationAlwaysPermission": "This app uses your location in the background to track beacons.",
+          "isIosBackgroundLocationEnabled": true
         }
       ]
     ],

@@ -1,6 +1,7 @@
 import {Text, View, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from "expo-router";
+import Logo from "@/assets/images/logo";
 
 export default function IntroScreen() 
 {
@@ -13,10 +14,7 @@ export default function IntroScreen()
       />
 
        <View className="flex-[6] justify-end items-center">
-     <Image 
-                source={require('../assets/images/logo.png')}
-                  style={{width: 200, height: 200}}
-                  />
+     <Logo/>
     </View>
     <View className="flex-[3] justify-end items-center">
       <Text className="text-3xl font-bold text-white">Message Who Matters</Text>

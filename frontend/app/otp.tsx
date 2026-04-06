@@ -2,8 +2,43 @@ import { Modal, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { OtpInput } from "react-native-otp-entry";
+import { useState, useEffect, useRef } from "react";
+
 
 export default function Otp({ visible, onClose, otp, setOtp, error, onVerify, onResend }) {
+  const [cooldown, setCooldown] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleResend = () => {
+  onResend();
+  setCooldown(300); 
+  };
+
+    useEffect(() => {
+    if (cooldown <= 0) return;
+
+    timerRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current!);
+  }, [cooldown]);
+
+  const formatTime = (seconds: number) => {
+  const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+  };
+
+
+
+ 
   return (
     <Modal
       visible={visible}
@@ -41,10 +76,15 @@ export default function Otp({ visible, onClose, otp, setOtp, error, onVerify, on
           </Text>
           ) : null}
 
-          <TouchableOpacity
-            onPress={onResend}>
+          {cooldown > 0 ? (
+          <Text className="text-gray-400 text-center mt-4">
+            Resend available in {formatTime(cooldown)}
+          </Text>
+        ) : (
+          <TouchableOpacity onPress={handleResend}>
             <Text className="text-black underline text-center mt-4">Resend Code?</Text>
           </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             className="bg-[#FF6B2C] rounded-lg p-2 w-40 mt-2"

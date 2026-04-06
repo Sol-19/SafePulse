@@ -5,6 +5,7 @@
   import { Phone } from 'lucide-react-native';
   import Otp from "./otp";
   import AsyncStorage from '@react-native-async-storage/async-storage';
+  import Logo from "@/assets/images/logo";
  
  
  
@@ -27,7 +28,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-        mobile_number: '+63' + phoneNumber, 
+        mobile_number: '63' + phoneNumber, 
         purpose: 'registration'}),
       });
       const data = await response.json();
@@ -35,6 +36,7 @@
 
       if (!response.ok)
        {
+        console.log(data);
         setError("This number is already registered. Please log in instead.");
         return false;
       }
@@ -54,9 +56,11 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-        mobile_number: '+63' + phoneNumber,
+        mobile_number: '63' + phoneNumber,
         purpose: 'registration',
-        otp: otp }),
+        otp: otp,
+      first_name: firstName,
+      last_name: lastName}),
       });
       console.log(response.status);
       const data = await response.json();
@@ -87,7 +91,7 @@
     setError("");
  
     const success = await handleRequestOTP();
-    if (!success) return; // already registered or request failed
+    if (!success) return; 
  
     setShowOtp(true);
     setKeyboardEnabled(!keyboardEnabled);
@@ -100,11 +104,14 @@
       setError("Invalid OTP. Please try again.");
     } else {
       setError("");
-      alert("✅ User Registered!");
+      alert("User Registered!");
+
+      
       setShowOtp(false);
       
       setKeyboardEnabled(!keyboardEnabled)
-      router.replace('/login');
+      await AsyncStorage.setItem('token', response["session id"]);
+      router.replace('/(tabs)/home');
     }
   };//delete later
  
@@ -124,10 +131,7 @@
                 source={require('../assets/images/background-image.jpg')}
                 className="absolute w-full h-full opacity-20"
                 />
-                <Image 
-                source={require('../assets/images/logo.png')}
-                style={{width: 200, height: 200}}
-                />
+               <Logo/>
               </View>
  
           <View className="rounded-[28px] flex-[6] bg-[#F5F5F5] p-10 -mt-16">

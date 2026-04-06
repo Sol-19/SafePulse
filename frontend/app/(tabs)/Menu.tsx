@@ -79,6 +79,10 @@ export default function Menu ()
             onPress={handleLogout}>
                 <Text className='text-center text-[#FF6B2C]'>Log out</Text>
             </TouchableOpacity>
+
+
+
+
         </View>
     );
 }

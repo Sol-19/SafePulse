@@ -6,6 +6,7 @@ import { Pencil, Trash2 } from 'lucide-react-native';
 import { useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const colors = ['#3723A9', '#FF6B2C', '#E91E63', '#009688', '#FF5722', '#673AB7', '#2196F3', '#4CAF50'];
 
@@ -59,6 +60,7 @@ export default function IntroScreen()
 
     try {
       const token = await AsyncStorage.getItem('token');
+     
 
       const response = await fetch(
         `https://beakonek.onrender.com/api/v1/relatives/${relative_id}`, 
@@ -72,14 +74,30 @@ export default function IntroScreen()
 
      if (!response.ok) {
       console.log('Delete failed:');
+      Toast.show({
+      type: 'error',
+      text1: 'Delete Failed',
+      text2: 'Something went wrong. Please try again.'
+    });
       return;
      }
+
+      Toast.show({
+      type: 'success',
+      text1: `Contact Deleted`,
+      text2: 'Contact has been removed from your list.'
+    });
      //setContacts(prev => prev.filter(contact => contact.relative_id !== relative_id));
 
      console.log('Delete succesfully');
 
     } catch (error)
     {
+      Toast.show({
+      type: 'error',
+      text1: 'Delete Failed',
+      text2: 'Something went wrong. Please try again.'
+    });
       console.log('bro');
       console.log(error);
     }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
 import { Check } from "lucide-react-native";
-
+import Toast from 'react-native-toast-message';
 
 export default function AddContacts ()
 {
@@ -35,6 +35,11 @@ export default function AddContacts ()
       setPhoneError("Phone number must start with 9.");
       return;
       }
+    Toast.show({
+      type: 'success',
+      text1: 'Saved!',
+      text2: 'Contact was added succesfully.'
+    })
       setPhoneNumber('');
       setName('');
       setPhoneError('');
@@ -88,7 +93,7 @@ export default function AddContacts ()
       <View className="flex-row p-6 mt-10 bg-white shadow-md justify-between items-center relative border-b border-[#969696]">
         <Text className='text-center flex-1 text-2xl font-bold'>New Contact</Text>
     
-     <TouchableOpacity onPress={addContact} 
+     <TouchableOpacity onPress={addContact}
      className="mr-4 w-10 h-10 border-2 border-orange-500 rounded-full items-center justify-center">
       <Check size={20} color="#FF6B35" />
         </TouchableOpacity>
@@ -104,7 +109,7 @@ export default function AddContacts ()
            className="flex-1 p-4"
            value={name}
            onChangeText={setName}
-           maxLength={12}
+           maxLength={25}
            />
             </View>
             {nameError ? (

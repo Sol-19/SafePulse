@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useEffect, useState } from "react";
 import NetInfo from "@react-native-community/netinfo";
 import '@/tasks/location-task';
+import Toast from 'react-native-toast-message';
 
 
 SystemUI.setBackgroundColorAsync('#3723A9');
@@ -70,11 +71,13 @@ useEffect(() => {
         
       
       </Stack>
+      <Toast/>
       <StatusBar style="auto" />
 
     </ImageBackground>
     </ThemeProvider>
   </GestureHandlerRootView>
+  
   );
 
 }

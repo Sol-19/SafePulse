@@ -52,7 +52,7 @@ export default function ContactAvatar ()
             <View key={contact.relative_id} className="items-center mr-6">
 
                 <View style={{ backgroundColor: getColor(contact.relative_name) }}
-                    className="w-16 h-16 rounded-full justify-center items-center mb-2">
+                    className="w-16 h-16 rounded-full justify-center items-center">
 
                     <Text className="text-white text-xl font-bold">
                         {contact.relative_name.charAt(0).toUpperCase()}
